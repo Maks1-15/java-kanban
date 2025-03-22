@@ -1,4 +1,4 @@
-package manager;
+package service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,29 +30,29 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    void getIdTaskTest() {
+    void getByIdTaskTest() {
         Task task1 = new Task("task1", "des", Status.NEW);
         Task task2 = new Task("task2", "des", Status.NEW);
         tm.createTask(task1);
         tm.createTask(task2);
-        assertEquals(task2, tm.getIdTask(task2.getId()));
+        assertEquals(task2, tm.getByIdTask(task2.getId()));
     }
 
     @Test
-    void removeTaskIdTest() {
+    void removeTaskByIdTest() {
         Task task1 = new Task("task1", "des", Status.NEW);
         Task task2 = new Task("task2", "des", Status.NEW);
         tm.createTask(task1);
         tm.createTask(task2);
-        assertEquals(1, tm.removeTaskId(task2.getId()));
+        assertEquals(1, tm.removeTaskById(task2.getId()));
     }
 
     @Test
-    void removeEpicIdTest() {
+    void removeEpicByIdTest() {
         Epic epic1 = new Epic("epic1", "des");
         Epic epic2 = new Epic("epic1", "des");
         tm.createEpic(epic1);
         tm.createEpic(epic2);
-        assertEquals(1, tm.removeEpicId(epic1.getId()));
+        assertEquals(1, tm.removeEpicById(epic1.getId()));
     }
 }

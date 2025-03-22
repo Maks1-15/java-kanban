@@ -1,4 +1,4 @@
-package manager;
+package service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,11 +46,11 @@ class InMemoryHistoryManagerTest {
         tm.createSubtask(subtask2);
         tm.createSubtask(subtask3);
 
-        tm.getIdTask(task1.getId());
-        tm.getIdTask(task2.getId());
-        tm.getIdEpic(epic1.getId());
-        tm.getIdSubtask(subtask1.getId());
-        tm.getIdEpic(epic1.getId());
+        tm.getByIdTask(task1.getId());
+        tm.getByIdTask(task2.getId());
+        tm.getByIdEpic(epic1.getId());
+        tm.getByIdSubtask(subtask1.getId());
+        tm.getByIdEpic(epic1.getId());
 
 
         assertEquals(task1, tm.getHistory().get(0));

@@ -1,4 +1,4 @@
-package manager;
+package service;
 
 import task.Epic;
 import task.Subtask;
@@ -20,11 +20,11 @@ public interface TaskManager {
 
     void removeSubtasks();
 
-    Task getIdTask(int id);
+    Task getByIdTask(int id);
 
-    Epic getIdEpic(int id);
+    Epic getByIdEpic(int id);
 
-    Subtask getIdSubtask(int id);
+    Subtask getByIdSubtask(int id);
 
     int createTask(Task task);
 
@@ -38,11 +38,11 @@ public interface TaskManager {
 
     int updateSubtask(Subtask subtask);
 
-    int removeTaskId(int id);
+    int removeTaskById(int id);
 
-    int removeEpicId(int id);
+    int removeEpicById(int id);
 
-    int removeSubtaskId(int id);
+    int removeSubtaskById(int id);
 
     // Возврат Subtask по Epic
     List<Subtask> getEpicSubtask(Epic epic);

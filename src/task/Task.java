@@ -80,4 +80,8 @@ public class Task {
         // id,type,name,status,description,epic
         return String.format("%d,%s,%s,%s,%s,\n", getId(), "TASK", getName(), getDescription(), getStatus());
     }
+
+    public Task getType() {
+        return this.getType();
+    }
 }

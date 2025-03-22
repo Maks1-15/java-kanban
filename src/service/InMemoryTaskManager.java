@@ -1,4 +1,4 @@
-package manager;
+package service;
 
 import java.util.*;
 
@@ -63,32 +63,28 @@ public class InMemoryTaskManager implements TaskManager {
     // Получение задачи по id
 
     @Override
-    public Task getIdTask(int id) {
+    public Task getByIdTask(int id) {
         if (tasks.containsKey(id)) {
             historyManager.addTaskInMapHistory(tasks.get(id));
-            return tasks.get(id);
         }
-        // Видел, что null не стоит возвращать, поэтому возвращаю объект
-        return null;
+        return tasks.get(id);
     }
 
     @Override
-    public Epic getIdEpic(int id) {
+    public Epic getByIdEpic(int id) {
         if (epics.containsKey(id)) {
             historyManager.addTaskInMapHistory(epics.get(id));
-            return epics.get(id);
 
         }
-        return null;
+        return epics.get(id);
     }
 
     @Override
-    public Subtask getIdSubtask(int id) {
+    public Subtask getByIdSubtask(int id) {
         if (subtasks.containsKey(id)) {
             historyManager.addTaskInMapHistory(subtasks.get(id));
-            return subtasks.get(id);
         }
-        return null;
+        return subtasks.get(id);
     }
 
     // Создание задач
@@ -116,7 +112,6 @@ public class InMemoryTaskManager implements TaskManager {
         epics.put(idEpic, epic);
         return idEpic;
     }
-
 
     @Override
     public int createSubtask(Subtask subtask) {
@@ -147,7 +142,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         tasks.put(task.getId(), task);
-        return 1;
+        return task.getId();
     }
 
     @Override
@@ -158,7 +153,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         epics.put(epic.getId(), epic);
         updateEpicStatus(epic.getId());
-        return 1;
+        return epic.getId();
     }
 
     @Override
@@ -169,13 +164,13 @@ public class InMemoryTaskManager implements TaskManager {
 
         subtasks.put(subtask.getId(), subtask);
         updateEpicStatus(subtask.getId());
-        return 1;
+        return subtask.getId();
     }
 
     // Удаление задач по id
 
     @Override
-    public int removeTaskId(int id) {
+    public int removeTaskById(int id) {
         if (tasks.containsKey(id)) {
             tasks.remove(id);
             return 1;
@@ -184,7 +179,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int removeEpicId(int id) {
+    public int removeEpicById(int id) {
         if (epics.containsKey(id)) {
             Epic epic = epics.get(id);
             if (epic == null) {
@@ -200,12 +195,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int removeSubtaskId(int id) {
+    public int removeSubtaskById(int id) {
         Subtask subtask = subtasks.get(id);
         if (subtask != null) {
             Epic epic = epics.get(subtask.getEpicId());
             if (epic != null) {
-                epic.removeSubtaskId(id);
+                epic.removeSubtaskById(id);
             }
             subtasks.remove(id);
             return 1;
@@ -245,6 +240,7 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
+        // флаги для статуса задач
         boolean allNew = true;
         boolean allDone = true;
 
@@ -274,7 +270,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> getHistory() {
-        List<Task> getHistoryList = new ArrayList<>(historyManager.getHistory());
-        return getHistoryList;
+        return new ArrayList<>(historyManager.getHistory());
     }
 }
