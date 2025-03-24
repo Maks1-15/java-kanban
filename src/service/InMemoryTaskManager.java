@@ -1,24 +1,43 @@
 package service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import task.*;
+import utils.Validatable;
 
-public class InMemoryTaskManager implements TaskManager {
+public class InMemoryTaskManager implements TaskManager, Validatable {
 
     protected final Map<Integer, Task> tasks = new HashMap<>();
     protected final Map<Integer, Epic> epics = new HashMap<>();
     protected final Map<Integer, Subtask> subtasks = new HashMap<>();
 
+    private final Set<Task> prioritizedTasksSet = new TreeSet<>(Comparator.comparing(Task::getStartTime));
+
+    HistoryManager historyManager = Managers.getDefaultHistoryManager();
+
     private int id = 0;
-
-    HistoryManager historyManager = new InMemoryHistoryManager();
-
-    // Вывод всех задач
 
     private int generateId() {
         return ++id;
     }
+
+    private void addTaskToSet(Task task) {
+        prioritizedTasksSet.add(task);
+    }
+
+    private boolean isAllTasksFinishedBefore(Task task) {
+        // лучше обращаться напрямую к Set или взять его копию List?
+        return prioritizedTasksSet.stream()
+                .allMatch(task1 -> task1.getStartTime().plus(task1.getDuration()).isBefore(task.getStartTime()));
+    }
+
+    public Collection<Task> getPrioritizedTasks() {
+        return prioritizedTasksSet.stream().toList();
+    }
+
+    // Вывод всех задач
 
     @Override
     public Collection<Task> getAllTask() {
@@ -91,19 +110,27 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createTask(Task task) {
-        if (task == null) {
+        if (!isValidateToAddTask(task)) {
+            return -1;
+        }
+
+        if (!isAllTasksFinishedBefore(task)) {
             return -1;
         }
 
         int idTask = generateId();
         task.setId(idTask);
         tasks.put(idTask, task);
+
+        if (isValidateToAddTaskInSet(task)) {
+            addTaskToSet(task);
+        }
         return idTask;
     }
 
     @Override
     public int createEpic(Epic epic) {
-        if (epic == null) {
+        if (!isValidateToAddTask(epic)) {
             return -1;
         }
 
@@ -115,7 +142,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createSubtask(Subtask subtask) {
-        if (subtask == null) {
+        if (!isValidateToAddTask(subtask)) {
+            return -1;
+        }
+
+        if (!isAllTasksFinishedBefore(subtask)) {
             return -1;
         }
 
@@ -123,13 +154,18 @@ public class InMemoryTaskManager implements TaskManager {
         subtask.setId(idSubtask);
         Epic epic = epics.get(subtask.getEpicId());
 
-        if (epic == null) {
+        if (!isValidateToAddTask(epic)) {
             return -1;
         }
 
         subtasks.put(idSubtask, subtask);
         epic.addEpicSubtask(idSubtask);
         updateEpicStatus(epic.getId());
+
+        if (isValidateToAddTaskInSet(subtask)) {
+            addTaskToSet(subtask);
+        }
+
         return idSubtask;
     }
 
@@ -137,17 +173,25 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int updateTask(Task task) {
-        if (task == null && !tasks.containsKey(task.getId())) {
+        if (!isValidateUpdateTask(task) || !tasks.containsKey(task.getId())) {
+            return -1;
+        }
+
+        if (!isAllTasksFinishedBefore(task)) {
             return -1;
         }
 
         tasks.put(task.getId(), task);
+
+        if (isValidateToAddTaskInSet(task)) {
+            addTaskToSet(task);
+        }
         return task.getId();
     }
 
     @Override
     public int updateEpic(Epic epic) {
-        if (epic == null && !epics.containsKey(epic.getId())) {
+        if (!isValidateUpdateTask(epic) || !epics.containsKey(epic.getId())) {
             return -1;
         }
 
@@ -158,12 +202,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int updateSubtask(Subtask subtask) {
-        if (subtask == null && !subtasks.containsKey(subtask.getId())) {
+        if (!isValidateUpdateTask(subtask) || !subtasks.containsKey(subtask.getId())) {
+            return -1;
+        }
+
+        if (!isAllTasksFinishedBefore(subtask)) {
             return -1;
         }
 
         subtasks.put(subtask.getId(), subtask);
         updateEpicStatus(subtask.getId());
+
+        if (isValidateToAddTaskInSet(subtask)) {
+            addTaskToSet(subtask);
+        }
         return subtask.getId();
     }
 
@@ -268,8 +320,64 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+    // Методы для поиска первой и последней подзадачи, необходимые для расчета времени Epic
+
+    // Возвращает последнюю подзадачу из Epic
+    @Override
+    public Subtask getSubtaskMaxEndTime() {
+        // дописать реализацию через optional
+        if (subtasks == null || subtasks.isEmpty()) {
+            throw new IllegalStateException("Нет подзадач");
+        }
+        Optional<Subtask> subtaskMax = subtasks.values().stream()
+                .max(Comparator.comparing(subtask -> subtask.getStartTime().plus(subtask.getDuration())));
+        if (subtaskMax.isPresent()) {
+            return subtaskMax.get();
+        }
+        throw new IllegalStateException("Подзадача не найдена");
+    }
+
+    // Возвращает первую подзадачу из Epic
+    @Override
+    public Subtask getSubtaskMinStartTime() {
+        if (subtasks == null || subtasks.isEmpty()) {
+            throw new IllegalStateException("Нет подзадач");
+        }
+        Optional<Subtask> subtaskMin = subtasks.values().stream()
+                .min(Comparator.comparing(Subtask::getStartTime));
+        if (subtaskMin.isPresent()) {
+            return subtaskMin.get();
+        }
+        throw new IllegalStateException("Подзадача не найдена");
+    }
+
     @Override
     public List<Task> getHistory() {
         return new ArrayList<>(historyManager.getHistory());
+    }
+
+    // Возвращает время начала Epic
+    @Override
+    public LocalDateTime calculateEpicStartTime() {
+        Subtask subtaskStartTime = getSubtaskMinStartTime();
+        return subtaskStartTime.getStartTime();
+    }
+
+    // Возвращает время начала Epic
+    @Override
+    public LocalDateTime calculateEpicEndTime() {
+        Subtask subtaskMaxEndTime = getSubtaskMaxEndTime();
+        return subtaskMaxEndTime.getStartTime().plus(subtaskMaxEndTime.getDuration());
+    }
+
+    // Возвращает продолжительность Epic
+    // Проходим по коллекции, в которой точно есть дата начала, отбираем подзадачи и
+    // и суммируем все в одну
+    @Override
+    public Duration getDuration() {
+        return prioritizedTasksSet.stream()
+                .filter(Subtask.class::isInstance)
+                .map(Task::getDuration)
+                .reduce(Duration.ZERO, Duration::plus);
     }
 }

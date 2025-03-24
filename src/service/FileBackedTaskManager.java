@@ -3,16 +3,17 @@ package service;
 import task.*;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
+// переписать класс с добавлением времени, помнить об особенностях epic
+    private File file;
 
-    private final File file;
-
-    // получаем файл в конструкторе (надо написать метод для создания файла, file == null)
     public FileBackedTaskManager(File file) {
+        if (file == null || !file.exists()) {
+            handleUserFileChoice();
+        }
         this.file = file;
     }
 
@@ -28,6 +29,51 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
+    private File handleUserFileChoice() {
+        System.out.println("Файл не найден или отсутствует. Вы хотите продолжить работу программы?" + "\n" +
+                "Введите ( 'y' / 'n' ) при соответствующем выборе: ");
+        Scanner s = new Scanner(System.in);
+        String choice = s.nextLine().trim().toLowerCase();
+        return switch (choice) {
+            case "y" -> {
+                this.file = createFile();
+                yield file;
+            }
+            case "n" -> throw new IllegalArgumentException("Файл отсутствует или не найден. Работа прекращена");
+            default -> {
+                System.out.println("Некорректный ввод. Пожалуйста, введите 'y' или 'n'. ");
+                yield handleUserFileChoice();
+            }
+        };
+    }
+
+    private File createFile() {
+        Scanner s = new Scanner(System.in);
+        System.out.println("Введите желаемое название файла: ");
+        String fileName = s.nextLine();
+        System.out.println("Введите желаемый путь для файла: ");
+        String path = s.nextLine();
+        File file = Paths.get(path).resolve(fileName).toFile();
+
+        if (!file.exists()) {
+            System.out.println("Указанный путь не существует. Введите заново соответствующие параметры.");
+            createFile();
+        }
+
+        try {
+            if (file.createNewFile()) {
+                System.out.println("Файл успешно создан");
+                return file;
+            } else {
+                System.out.println("Файл с таким именем уже существует");
+                return createFile();
+            }
+        } catch (IOException e) {
+            System.out.println("Ошибка при создании файла");
+            throw new RuntimeException(e);
+        }
+    }
+
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager FileBackedTaskManager = new FileBackedTaskManager(file);
         if (!file.exists()) {
@@ -37,13 +83,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             // не читаем 1 строку, т.к там нет нужной инфы
             reader.readLine();
-            List<Integer> listId = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.trim().isEmpty()) {
                     continue;
                 }
-                writeIdToFile(line);
+
                 try {
                     Task task = parseTaskFromString(line);
                     if (task instanceof Epic) {
@@ -68,15 +113,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             writer.write(task.toFileString() + System.lineSeparator());
         }
     }
-
-    private static void writeIdToFile(String line) {
-        List<Integer> listId = new ArrayList<>();
-        String[] arrayString = line.split(",");
-
-        int id = Integer.parseInt(arrayString[0]);
-        listId.add(id);
-    }
-
 
     private static Task parseTaskFromString(String line) {
         String[] arrayString = line.split(",");
@@ -104,73 +140,100 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public int createEpic(Epic epic) {
-        save();
-        return super.createEpic(epic);
+        int result = super.createEpic(epic);
+        if (result > 0) {
+            save();
+        }
+        return result;
     }
 
     @Override
     public int createTask(Task task) {
-        save();
-        return super.createTask(task);
+        int result = super.createTask(task);
+        if (result > 0) {
+            save();
+        }
+        return result;
     }
 
     @Override
     public int createSubtask(Subtask subtask) {
-        save();
-        return super.createSubtask(subtask);
+        int result = super.createSubtask(subtask);
+        if (result > 0) {
+            save();
+        }
+        return result;
     }
 
     @Override
     public int updateTask(Task task) {
-        save();
-        return super.updateTask(task);
+        int result = super.updateTask(task);
+        if (result > 0) {
+            save();
+        }
+        return result;
     }
 
     @Override
     public int updateEpic(Epic epic) {
-        save();
-        return super.updateEpic(epic);
+        int result = super.updateEpic(epic);
+        if (result > 0) {
+            save();
+        }
+        return result;
     }
 
     @Override
     public int updateSubtask(Subtask subtask) {
-        save();
-        return super.updateSubtask(subtask);
+        int result = super.updateSubtask(subtask);
+        if (result > 0) {
+            save();
+        }
+        return result;
     }
 
     @Override
     public int removeTaskById(int id) {
-        save();
-        return super.removeTaskById(id);
+        int result = super.removeTaskById(id);
+        if (result > 0) {
+            save();
+        }
+        return result;
     }
 
     @Override
     public int removeEpicById(int id) {
-        save();
-        return super.removeEpicById(id);
+        int result = super.removeEpicById(id);
+        if (result > 0) {
+            save();
+        }
+        return result;
     }
 
     @Override
     public int removeSubtaskById(int id) {
-        save();
-        return super.removeSubtaskById(id);
+        int result = super.removeSubtaskById(id);
+        if (result > 0) {
+            save();
+        }
+        return result;
     }
 
     @Override
     public void removeTasks() {
-        save();
         super.removeTasks();
+        save();
     }
 
     @Override
     public void removeEpics() {
-        save();
         super.removeEpics();
+        save();
     }
 
     @Override
     public void removeSubtasks() {
-        save();
         super.removeSubtasks();
+        save();
     }
 }

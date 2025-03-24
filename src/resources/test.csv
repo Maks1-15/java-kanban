@@ -3,13 +3,3 @@ id,type,name,status,description,epic
 
 2,TASK,task2,des,NEW,
 
-3,EPIC,epic1,des,NEW,
-
-4,EPIC,epic2,des,NEW,
-
-5,SUBTASK,subtask1,des,NEW,3
-
-6,SUBTASK,subtask2,des,NEW,3
-
-7,SUBTASK,subtask3,des,NEW,3
-
