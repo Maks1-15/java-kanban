@@ -8,7 +8,7 @@ public interface HistoryManager {
 
     int addTaskInMapHistory(Task task);
 
-    void removeIdByHistoryMap(int id);
+    int removeIdByHistoryMap(int id);
 
-    List<Task> getHistory();
+    List<Task> getHistoryList();
 }

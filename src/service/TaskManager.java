@@ -4,6 +4,8 @@ import task.Epic;
 import task.Subtask;
 import task.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -50,4 +52,15 @@ public interface TaskManager {
     void updateEpicStatus(int epicId);
 
     public List<Task> getHistory();
+
+    Subtask getSubtaskMaxEndTime();
+
+    Subtask getSubtaskMinStartTime();
+
+    public LocalDateTime calculateEpicStartTime();
+
+    public LocalDateTime calculateEpicEndTime();
+
+    Duration getDuration();
 }
+

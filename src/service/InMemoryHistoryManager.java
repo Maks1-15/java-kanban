@@ -25,16 +25,19 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public void removeIdByHistoryMap(int id) {
+    // появилась проблема с тестом, пока не решил, если что, подскажи как сделать тест
+
+    public int removeIdByHistoryMap(int id) {
         if (id < 0 || !mapHistory.containsKey(id)) {
-            return;
+            return -1;
         }
         removeNode(mapHistory.get(id));
         mapHistory.remove(id);
+        return 1;
     }
 
     @Override
-    public List<Task> getHistory() {
+    public List<Task> getHistoryList() {
         List<Task> historyList = new ArrayList<>();
         Node currentNode = head;
         while (Objects.nonNull(currentNode)) {
@@ -82,6 +85,8 @@ public class InMemoryHistoryManager implements HistoryManager {
             tail = n.prev;
         }
     }
+
+    // Класс узла
 
     private class Node {
 

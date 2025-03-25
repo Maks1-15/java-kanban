@@ -2,31 +2,82 @@ package service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import task.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class InMemoryTaskManagerTest {
 
-    InMemoryTaskManager tm = new InMemoryTaskManager();
-    Task task;
+    InMemoryTaskManager tm = (InMemoryTaskManager) Managers.getDefaultTaskManager();
+
     // Создание задач
 
-    @BeforeEach
-    public void beforeEach() {
-        task = new Task("task", "des", Status.NEW);
+    @Test
+    void getAllTaskTest() {
+        Task task1 = new Task("task1", "des1", Status.NEW);
+        Task task2 = new Task("task2", "des2", Status.NEW);
+        Task task3 = new Task("task3", "des3", Status.IN_PROGRESS);
+        tm.createTask(task1);
+        tm.createTask(task2);
+        tm.createTask(task3);
+        assertEquals(3, tm.getAllTask().size());
+    }
+
+    @Test
+    void removeEpicsTest() {
+        Epic epic1 = new Epic("epic1", "des1");
+        tm.createEpic(epic1);
+        Subtask subtask1 = new Subtask("subtask1", "des1", epic1.getId());
+        Subtask subtask2 = new Subtask("subtask2", "des2", epic1.getId());
+        tm.createSubtask(subtask1);
+        tm.createSubtask(subtask2);
+        tm.removeEpics();
+        assertEquals(0, tm.getAllEpic().size());
     }
 
     @Test
     void createTaskTest() {
-        assertEquals(1, tm.createTask(task));
+        Task task1 = new Task("task1", "des1", Status.NEW);
+        assertEquals(tm.createTask(task1), task1.getId());
+    }
+
+    @Test
+    void createSubtaskTest() {
+        Epic epic1 = new Epic("epic1", "des1");
+        tm.createEpic(epic1);
+        Subtask subtask1 = new Subtask("subtask1", "des1", epic1.getId());
+        assertEquals(tm.createSubtask(subtask1), subtask1.getId());
+    }
+
+    @Test
+    void createSubtaskCountTest() {
+        Epic epic1 = new Epic("epic1", "des1");
+        tm.createEpic(epic1);
+        Subtask subtask1 = new Subtask("subtask1", "des1", epic1.getId());
+        Subtask subtask2 = new Subtask("subtask2", "des2", epic1.getId());
+        tm.createSubtask(subtask1);
+        tm.createSubtask(subtask2);
+        assertEquals(2, epic1.getEpicSubtask().size());
     }
 
     @Test
     void updateTaskTest() {
-        task.setStatus(Status.DONE);
-        assertEquals(1, tm.updateTask(task));
+        Task task1 = new Task("task1", "des1", Status.NEW);
+        tm.createTask(task1);
+        task1.setStatus(Status.DONE);
+        assertEquals(tm.updateTask(task1), task1.getId());
+    }
+
+    @Test
+    void updateTaskNotIdTest() {
+        Task task1 = new Task("task1", "des1", Status.NEW);
+        Task task2 = new Task("task1", "des1", Status.NEW);
+        tm.createTask(task1);
+        tm.updateTask(task2);
+        assertEquals(-1, tm.updateTask(task2));
     }
 
     @Test
@@ -35,7 +86,7 @@ public class InMemoryTaskManagerTest {
         Task task2 = new Task("task2", "des", Status.NEW);
         tm.createTask(task1);
         tm.createTask(task2);
-        assertEquals(task2, tm.getByIdTask(task2.getId()));
+        assertEquals(tm.getByIdTask(task2.getId()), task2);
     }
 
     @Test
@@ -48,11 +99,104 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
+    void removeTaskByIdNotFoundTest() {
+        int nonId = -1;
+        assertEquals(-1, tm.removeTaskById(nonId));
+    }
+
+    @Test
     void removeEpicByIdTest() {
-        Epic epic1 = new Epic("epic1", "des");
-        Epic epic2 = new Epic("epic1", "des");
+        Epic epic1 = new Epic("epic1", "des1");
+        Subtask subtask1 = new Subtask("subtask1", "des2", epic1.getId());
+        Subtask subtask2 = new Subtask("subtask2", "des3", epic1.getId());
         tm.createEpic(epic1);
-        tm.createEpic(epic2);
+        tm.createSubtask(subtask1);
+        tm.createSubtask(subtask2);
         assertEquals(1, tm.removeEpicById(epic1.getId()));
     }
+
+    @Test
+    void getEpicSubtaskTest() {
+        Epic epic1 = new Epic("epic1", "des");
+
+        tm.createEpic(epic1);
+
+        Subtask subtask1 = new Subtask("subtask1", "des", epic1.getId());
+        Subtask subtask2 = new Subtask("subtask2", "des", epic1.getId());
+
+        tm.createSubtask(subtask1);
+        tm.createSubtask(subtask2);
+
+        assertEquals(subtask1, tm.getEpicSubtask(epic1).get(0));
+        assertEquals(subtask2, tm.getEpicSubtask(epic1).get(1));
+    }
+
+    @Test
+    void StatusNewEpicTest() {
+        Epic epic1 = new Epic("epic1", "des");
+        tm.createEpic(epic1);
+        Subtask subtask1 = new Subtask("subtask1", "des", epic1.getId());
+        Subtask subtask2 = new Subtask("subtask2", "des", epic1.getId());
+        tm.createSubtask(subtask1);
+        tm.createSubtask(subtask2);
+        assertEquals(Status.NEW, epic1.getStatus());
+    }
+
+    @Test
+    void StatusDoneEpicTest() {
+        Epic epic1 = new Epic("epic1", "des");
+        tm.createEpic(epic1);
+        Subtask subtask1 = new Subtask("subtask1", "des", epic1.getId());
+        Subtask subtask2 = new Subtask("subtask2", "des", epic1.getId());
+        subtask1.setStatus(Status.DONE);
+        subtask2.setStatus(Status.DONE);
+        tm.createSubtask(subtask1);
+        tm.createSubtask(subtask2);
+        assertEquals(Status.DONE, epic1.getStatus());
+    }
+
+    @Test
+    void StatusDoneAndNewEpicTest() {
+        Epic epic1 = new Epic("epic1", "des");
+        tm.createEpic(epic1);
+        Subtask subtask1 = new Subtask("subtask1", "des", epic1.getId());
+        Subtask subtask2 = new Subtask("subtask2", "des", epic1.getId());
+        subtask1.setStatus(Status.DONE);
+        tm.createSubtask(subtask1);
+        tm.createSubtask(subtask2);
+        assertEquals(Status.IN_PROGRESS, epic1.getStatus());
+    }
+
+    @Test
+    void StatusInProgressEpicTest() {
+        Epic epic1 = new Epic("epic1", "des");
+        tm.createEpic(epic1);
+        Subtask subtask1 = new Subtask("subtask1", "des", epic1.getId());
+        Subtask subtask2 = new Subtask("subtask2", "des", epic1.getId());
+        subtask1.setStatus(Status.IN_PROGRESS);
+        subtask2.setStatus(Status.IN_PROGRESS);
+        tm.createSubtask(subtask1);
+        tm.createSubtask(subtask2);
+        assertEquals(Status.IN_PROGRESS, epic1.getStatus());
+    }
+
+    @Test
+    void intervalIntersectionTest() {
+        Task task1 = new Task("task1", "des", Status.NEW, LocalDateTime.now(), Duration.ofDays(1));
+        Task task2 = new Task("task2", "des", Status.NEW, LocalDateTime.now(), Duration.ofDays(1));
+        tm.createTask(task1);
+        tm.createTask(task2);
+        assertEquals(1, tm.getPrioritizedTasks().size());
+    }
+
+    @Test
+    void intervalNotIntersectionTest() {
+        Task task1 = new Task("task1", "des", Status.NEW, LocalDateTime.now(), Duration.ofDays(1));
+        Task task2 = new Task("task2", "des", Status.NEW, LocalDateTime.now().plusDays(2), Duration.ofDays(1));
+        tm.createTask(task1);
+        tm.createTask(task2);
+        assertEquals(2, tm.getPrioritizedTasks().size());
+    }
+
+
 }
