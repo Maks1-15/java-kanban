@@ -33,6 +33,14 @@ public class Task {
     public Task(String name, String description, Status status, LocalDateTime startTime, Duration duration) {
         this.name = name;
         this.description = description;
+        this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
+    }
+    // Конструктор с датой начала времени и продолжительностью, и с указанным id, необходимый для конвертации str в Task
+    public Task(int id, String name, String description, Status status, LocalDateTime startTime, Duration duration) {
+        this.name = name;
+        this.description = description;
         this.id = id;
         this.status = status;
         this.duration = duration;
@@ -88,8 +96,8 @@ public class Task {
     }
 
     public String toFileString() {
-        // id,type,name,status,description,epic
-        return String.format("%d,%s,%s,%s,%s,\n", getId(), "TASK", getName(), getDescription(), getStatus());
+        // id,type,name,status,description,epic,startTime,duration
+        return String.format("%d,%s,%s,%s,%s,%s,%s\n", getId(), "TASK", getName(), getDescription(), getStatus(), getStartTime(), getDuration());
     }
 
     public LocalDateTime getEndTime() {

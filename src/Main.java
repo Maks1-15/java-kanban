@@ -9,6 +9,10 @@ public class Main {
     public static void main(String[] args) {
         InMemoryTaskManager imtm = (InMemoryTaskManager) Managers.getDefaultTaskManager();
 
+        // изменить file
+        // добавить все все тесты
+        // Hm вроде не переделывать, добавить тест в него. все задачи я уже написал, осталось переделать не так много
+
         Task task1 = new Task("task1", "des", Status.NEW, LocalDateTime.now(), Duration.ofDays(2));
         Task task3 = new Task("task1", "des", Status.NEW, LocalDateTime.now(), Duration.ofDays(2));
         Task task2 = new Task("task2", "des", Status.NEW, LocalDateTime.now().plusDays(3), Duration.ofDays(2));

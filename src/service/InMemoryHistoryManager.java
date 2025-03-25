@@ -37,7 +37,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public List<Task> getHistory() {
+    public List<Task> getHistoryList() {
         List<Task> historyList = new ArrayList<>();
         Node currentNode = head;
         while (Objects.nonNull(currentNode)) {
@@ -85,6 +85,8 @@ public class InMemoryHistoryManager implements HistoryManager {
             tail = n.prev;
         }
     }
+
+    // Класс узла
 
     private class Node {
 

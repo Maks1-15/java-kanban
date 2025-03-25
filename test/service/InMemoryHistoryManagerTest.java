@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,15 +41,15 @@ class InMemoryHistoryManagerTest {
     @Test
     void getHistoryTest() {
 
-        Task task1 = new Task("task1", "des", Status.NEW);
-        Task task2 = new Task("task2", "des", Status.NEW);
+        Task task1 = new Task("task1", "des", Status.NEW, LocalDateTime.now(), Duration.ofDays(1));
+        Task task2 = new Task("task2", "des", Status.NEW, LocalDateTime.now().plusDays(3), Duration.ofDays(1));
         Epic epic1 = new Epic("epic1", "des");
 
         tm.createTask(task1);
         tm.createTask(task2);
         tm.createEpic(epic1);
 
-        Subtask subtask1 = new Subtask("subtask1", "des", epic1.getId());
+        Subtask subtask1 = new Subtask("subtask1", "des", Status.NEW, epic1.getId(), LocalDateTime.now().plusWeeks(1), Duration.ofHours(1));
 
         tm.createSubtask(subtask1);
 

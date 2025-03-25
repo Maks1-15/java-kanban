@@ -4,10 +4,12 @@ import task.*;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-// переписать класс с добавлением времени, помнить об особенностях epic
+    // переписать класс с добавлением времени, помнить об особенностях epic
     private File file;
 
     public FileBackedTaskManager(File file) {
@@ -19,7 +21,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write("id,type,name,status,description,epic\n");
+            writer.write("id,type,name,status,description,epic,localDateTime,duration\n");
             writeTasks(writer, getAllTask());
             writeTasks(writer, getAllEpic());
             writeTasks(writer, getAllSubtask());
@@ -122,15 +124,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = arrayString[2];
         String description = arrayString[3];
         Status status = Status.valueOf(arrayString[4]);
+        LocalDateTime localDateTime = LocalDateTime.parse(arrayString[5]);
+        Duration duration = Duration.parse(arrayString[6]);
 
         switch (taskStatus) {
             case TASK:
-                return new Task(id, name, description, status);
+                return new Task(id, name, description, status, localDateTime, duration);
             case EPIC:
-                return new Epic(id, name, description, status);
+                return new Epic(id, name, description, status, localDateTime, duration);
             case SUBTASK: {
-                int epicId = Integer.parseInt(arrayString[5]);
-                return new Subtask(id, name, description, status, epicId);
+                int epicId = Integer.parseInt(arrayString[7]);
+                return new Subtask(id, name, description, status, localDateTime, duration, epicId);
             }
             default:
                 System.out.println("Неизвестная задача");

@@ -15,6 +15,7 @@ public class Epic extends Task {
     private final List<Integer> epicSubtaskId;
     private LocalDateTime endTime;
 
+    // Конструкторы аналогичны Task
     public Epic(String name, String description) {
         super(name, description, Status.NEW);
         this.epicSubtaskId = new ArrayList<>();
@@ -22,6 +23,11 @@ public class Epic extends Task {
 
     public Epic(int id, String name, String description, Status status) {
         super(id, name, description, Status.NEW);
+        this.epicSubtaskId = new ArrayList<>();
+    }
+
+    public Epic(int id, String name, String description, Status status, LocalDateTime startTime, Duration duration) {
+        super(id, name, description, Status.NEW, startTime, duration);
         this.epicSubtaskId = new ArrayList<>();
     }
 
@@ -38,11 +44,10 @@ public class Epic extends Task {
     }
 
     public String toFileString() {
-        return String.format("%d,%s,%s,%s,%s,\n", getId(), "EPIC", getName(), getDescription(), getStatus());
+        return String.format("%d,%s,%s,%s,%s,%s,%s\n", getId(), "EPIC", getName(), getDescription(), getStatus(), getStartTime(), getDuration());
     }
 
     // переопределяем геттеры для получения значений из TaskManager, т.к. логика расчета оттуда
-
 
     @Override
     public LocalDateTime getStartTime() {
