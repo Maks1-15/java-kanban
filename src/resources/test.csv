@@ -1,15 +1,5 @@
-id,type,name,status,description,epic
-1,TASK,task1,des,NEW,
+id,type,name,status,description,epic,localDateTime,duration
+1,TASK,task1,des,NEW,2025-03-31T07:57:24.533912100,PT24H
 
-2,TASK,task2,des,NEW,
-
-3,EPIC,epic1,des,NEW,
-
-4,EPIC,epic2,des,NEW,
-
-5,SUBTASK,subtask1,des,NEW,3
-
-6,SUBTASK,subtask2,des,NEW,3
-
-7,SUBTASK,subtask3,des,NEW,3
+2,TASK,task2,des,NEW,2025-04-03T07:57:24.533912100,PT24H
 
