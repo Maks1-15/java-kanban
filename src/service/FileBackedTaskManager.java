@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    // переписать класс с добавлением времени, помнить об особенностях epic
     private File file;
 
     public FileBackedTaskManager(File file) {

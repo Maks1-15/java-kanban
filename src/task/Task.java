@@ -1,11 +1,10 @@
 package task;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Task {
+public class Task implements Cloneable {
 
     private String name;
     private String description;
@@ -37,6 +36,7 @@ public class Task {
         this.duration = duration;
         this.startTime = startTime;
     }
+
     // Конструктор с датой начала времени и продолжительностью, и с указанным id, необходимый для конвертации str в Task
     public Task(int id, String name, String description, Status status, LocalDateTime startTime, Duration duration) {
         this.name = name;
@@ -126,5 +126,11 @@ public class Task {
                 ", duration=" + duration +
                 ", startTime=" + startTime +
                 '}';
+    }
+
+    // Метод копирования задач
+    @Override
+    public Task clone() throws CloneNotSupportedException {
+        return (Task) super.clone();
     }
 }

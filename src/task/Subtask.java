@@ -3,7 +3,7 @@ package task;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class Subtask extends Task {
+public class Subtask extends Task  implements Cloneable {
 
     private int epicId;
 
@@ -48,6 +48,13 @@ public class Subtask extends Task {
                 ", startTime=" + getStartTime() +
                 '}';
 
+    }
+
+    // Метод копирования задач
+
+    @Override
+    public Subtask clone() throws CloneNotSupportedException {
+        return (Subtask) super.clone();
     }
 }
 

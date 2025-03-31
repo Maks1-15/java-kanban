@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 public class FileBackedTaskManagerTest {
 
     Path directory = Paths.get("E:\\prj\\java-kanban\\src\\resources");
