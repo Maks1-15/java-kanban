@@ -63,5 +63,7 @@ public interface TaskManager {
     public LocalDateTime calculateEpicEndTime();
 
     Duration getDuration();
+
+    Collection<Task> getPrioritizedTasks();
 }
 

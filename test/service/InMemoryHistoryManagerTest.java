@@ -47,7 +47,7 @@ class InMemoryHistoryManagerTest {
         tm.getByIdEpic(tm.epics.get(idEpic1).getId());
         tm.getByIdSubtask(tm.subtasks.get(idSubtask1).getId());
         tm.getByIdEpic(tm.epics.get(idEpic1).getId());
-        System.out.println(tm.getHistory());
+        //System.out.println(tm.getHistory());
 
         assertEquals(tm.tasks.get(idTask1), tm.getHistory().get(0));
         assertEquals(tm.tasks.get(idTask2), tm.getHistory().get(1));

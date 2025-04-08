@@ -1,4 +1,4 @@
-package service;
+package service.exception;
 
 // Создали собственное исключение для вывода ошибки в методе save
 public class ManagerSaveException extends RuntimeException {
