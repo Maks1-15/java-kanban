@@ -4,8 +4,11 @@ import task.Epic;
 import task.Subtask;
 import task.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface TaskManager {
     Collection<Task> getAllTask();
@@ -20,11 +23,11 @@ public interface TaskManager {
 
     void removeSubtasks();
 
-    Task getByIdTask(int id);
+    Optional<Task> getByIdTask(int id);
 
-    Epic getByIdEpic(int id);
+    Optional<Epic> getByIdEpic(int id);
 
-    Subtask getByIdSubtask(int id);
+    Optional<Subtask> getByIdSubtask(int id);
 
     int createTask(Task task);
 
@@ -50,4 +53,17 @@ public interface TaskManager {
     void updateEpicStatus(int epicId);
 
     public List<Task> getHistory();
+
+    Optional<Subtask> getSubtaskMaxEndTime();
+
+    Optional<Subtask> getSubtaskMinStartTime();
+
+    public LocalDateTime calculateEpicStartTime();
+
+    public LocalDateTime calculateEpicEndTime();
+
+    Duration getDuration();
+
+    Collection<Task> getPrioritizedTasks();
 }
+
